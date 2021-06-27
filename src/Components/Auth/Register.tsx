@@ -1,26 +1,16 @@
-import loadable from "@loadable/component";
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@material-ui/core";
+import loadable from '@loadable/component';
+import { Button, Card, CardActions, CardContent, FormControl, Grid, InputLabel, MenuItem, Select } from "@material-ui/core";
 import { makeStyles, Theme } from "@material-ui/core/styles";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import React, { useState } from "react";
 import ReCaptcha from "react-google-recaptcha";
-import { withTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { DISTRICT_CHOICES, GENDER_TYPES } from "../../Common/constants";
 import { validateEmailAddress } from "../../Common/validation";
 import { signupUser } from "../../Redux/actions";
 import { PhoneNumberField, TextInputField } from "../Common/HelperInputFields";
-const PageTitle = loadable(() => import("../Common/PageTitle"));
+const PageTitle = loadable( () => import("../Common/PageTitle"));
+
 
 const optionalFields = [
   "first_name",
@@ -35,19 +25,19 @@ const optionalFields = [
 const useStyles = makeStyles((theme: Theme) => ({
   formTop: {
     marginTop: "80px",
-    marginBottom: "70px",
+    marginBottom: "70px"
   },
   pdLogo: {
     height: "345px",
-    border: "solid 3px white",
+    border: "solid 3px white"
   },
   cardActions: {
     padding: 0,
-    paddingTop: 16,
-  },
+    paddingTop: 16
+  }
 }));
 
-const RegisterPage = (props: any) => {
+export const Register = () => {
   const classes = useStyles();
   const dispatch: any = useDispatch();
   const initForm: any = {
@@ -67,53 +57,54 @@ const RegisterPage = (props: any) => {
   const [form, setForm] = useState(initForm);
   const [errors, setErrors] = useState(initErr);
   const [isCaptchaEnabled, setCaptcha] = useState(false);
-  const { t } = props;
-  const captchaKey = "6LdvxuQUAAAAADDWVflgBqyHGfq-xmvNJaToM0pN";
+
+  const captchaKey = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 
   const validateForm = () => {
     const oldError: any = {};
     let hasError: boolean = false;
     Object.keys(form).map((field: string) => {
       if (optionalFields.indexOf(field) === -1 && !form[field].length) {
-        oldError[field] = t("field_required");
+        oldError[field] = "Field is required";
         hasError = true;
       } else if (field === "username" && !form[field].match(/^[\w.@+-]+$/)) {
-        oldError[field] = t("invalid_username");
+        oldError[field] =
+          "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.";
         hasError = true;
       } else if (
         field === "email" &&
         form[field].length &&
         !validateEmailAddress(form[field])
       ) {
-        oldError[field] = t("invalid_email");
+        oldError[field] = "Please Enter a Valid Email Address";
         hasError = true;
       } else if (field === "phone_number") {
         const phoneNumber = parsePhoneNumberFromString(form[field]);
         if (!form[field] || !phoneNumber?.isPossible()) {
-          oldError[field] = t("invalid_phone");
+          oldError[field] = "Please enter valid phone number";
           hasError = true;
         }
       } else if (
         (field === "district" || field === "gender") &&
         form[field] === ""
       ) {
-        oldError[field] = t("field_required");
+        oldError[field] = "Field is required";
         hasError = true;
       } else if (field === "age" && isNaN(form[field])) {
-        oldError[field] = t("enter_valid_age");
+        oldError[field] = "Please Enter Valid Age";
         hasError = true;
       } else if (
         (field === "password" || field === "c_password") &&
         form["password"] !== form["c_password"]
       ) {
-        oldError["c_password"] = t("password_mismatch");
+        oldError["c_password"] = "Password Mismatch";
         hasError = true;
       } else if (
         isCaptchaEnabled &&
         field === "captcha" &&
         form[field] === ""
       ) {
-        oldError[field] = t("field_required");
+        oldError[field] = "Field is required";
         hasError = true;
       }
     });
@@ -131,9 +122,7 @@ const RegisterPage = (props: any) => {
     if (validForm) {
       const data = {
         ...form,
-        phone_number: parsePhoneNumberFromString(form.phone_number)?.format(
-          "E.164"
-        ),
+        phone_number: parsePhoneNumberFromString(form.phone_number)?.format('E.164'),
       };
       dispatch(signupUser(data)).then((res: any) => {
         if (res.status === 201) {
@@ -175,14 +164,14 @@ const RegisterPage = (props: any) => {
 
   return (
     <div className="p-2 max-w-3xl mx-auto">
-      <PageTitle title={t("register_page_title")} />
+      <PageTitle title="Register As Hospital Administrator" />
 
       <Card>
-        <form onSubmit={(e) => handleSubmit(e)}>
+        <form onSubmit={e => handleSubmit(e)}>
           <CardContent>
             <TextInputField
               name="username"
-              label={t("username")}
+              label="User Name*"
               placeholder=""
               variant="outlined"
               margin="dense"
@@ -193,7 +182,7 @@ const RegisterPage = (props: any) => {
             />
             <TextInputField
               name="first_name"
-              label={t("first_name")}
+              label="First Name"
               placeholder=""
               variant="outlined"
               margin="dense"
@@ -203,7 +192,7 @@ const RegisterPage = (props: any) => {
             />
             <TextInputField
               name="last_name"
-              label={t("last_name")}
+              label="Last Name"
               placeholder=""
               variant="outlined"
               margin="dense"
@@ -214,7 +203,7 @@ const RegisterPage = (props: any) => {
             <TextInputField
               type="email"
               name="email"
-              label={t("email")}
+              label="Email Address"
               placeholder=""
               variant="outlined"
               margin="dense"
@@ -224,11 +213,9 @@ const RegisterPage = (props: any) => {
             />
 
             <PhoneNumberField
-              label={t("phone_number")}
+              label="Phone Number*"
               value={form.phone_number}
-              onChange={(value: any) =>
-                handleValueChange(value, "phone_number")
-              }
+              onChange={(value: any) => handleValueChange(value, 'phone_number')}
               errors={errors.phone_number}
             />
 
@@ -242,7 +229,7 @@ const RegisterPage = (props: any) => {
               <Grid item xs={6}>
                 <FormControl fullWidth variant="outlined">
                   <InputLabel id="demo-simple-select-outlined-label">
-                    {t("district")}
+                    District*
                   </InputLabel>
                   <Select
                     fullWidth
@@ -256,7 +243,7 @@ const RegisterPage = (props: any) => {
                     <MenuItem value="">
                       <em>None</em>
                     </MenuItem>
-                    {DISTRICT_CHOICES.map((district) => {
+                    {DISTRICT_CHOICES.map(district => {
                       return (
                         <MenuItem
                           key={district.id.toString()}
@@ -273,7 +260,7 @@ const RegisterPage = (props: any) => {
               <Grid item xs={6}>
                 <FormControl fullWidth variant="outlined">
                   <InputLabel id="demo-simple-select-outlined-label">
-                    {t("gender")}
+                    Gender*
                   </InputLabel>
                   <Select
                     fullWidth
@@ -287,7 +274,7 @@ const RegisterPage = (props: any) => {
                     <MenuItem value="">
                       <em>None</em>
                     </MenuItem>
-                    {GENDER_TYPES.map((gender) => {
+                    {GENDER_TYPES.map(gender => {
                       return (
                         <MenuItem key={gender.id} value={gender.id}>
                           {gender.text}
@@ -302,7 +289,7 @@ const RegisterPage = (props: any) => {
             <TextInputField
               type="tel"
               name="age"
-              label={t("age")}
+              label="Age*"
               placeholder=""
               variant="outlined"
               margin="dense"
@@ -313,11 +300,11 @@ const RegisterPage = (props: any) => {
             <TextInputField
               type="password"
               name="password"
-              label={t("password")}
+              label="Password*"
               placeholder=""
               variant="outlined"
               margin="dense"
-              autoComplete="new-password"
+              autoComplete='new-password'
               value={form.password}
               onChange={handleChange}
               errors={errors.password}
@@ -325,11 +312,11 @@ const RegisterPage = (props: any) => {
             <TextInputField
               type="password"
               name="c_password"
-              label={t("confirm_password")}
+              label="Confirm Password*"
               placeholder=""
               variant="outlined"
               margin="dense"
-              autoComplete="new-password"
+              autoComplete='new-password'
               value={form.c_password}
               onChange={handleChange}
               errors={errors.c_password}
@@ -353,9 +340,9 @@ const RegisterPage = (props: any) => {
                         color="primary"
                         variant="contained"
                         type="submit"
-                        onClick={(e) => handleSubmit(e)}
+                        onClick={e => handleSubmit(e)}
                       >
-                        {t("register_hospital")}
+                        Register Hospital
                       </Button>
                     </Grid>
                   </Grid>
@@ -368,5 +355,3 @@ const RegisterPage = (props: any) => {
     </div>
   );
 };
-
-export const Register = withTranslation()(RegisterPage);

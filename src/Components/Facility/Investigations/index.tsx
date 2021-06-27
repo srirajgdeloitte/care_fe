@@ -1,14 +1,10 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { MultiSelectField } from "../../Common/HelperInputFields";
-import { TestTable } from "./Table";
-import { useDispatch } from "react-redux";
-import {
-  createInvestigation,
-  listInvestigationGroups,
-  listInvestigations,
-} from "../../../Redux/actions";
+import React, {useEffect, useReducer, useState} from "react";
+import {MultiSelectField} from "../../Common/HelperInputFields";
+import {TestTable} from "./Table";
+import {useDispatch} from "react-redux";
+import {createInvestigation, listInvestigationGroups, listInvestigations,} from "../../../Redux/actions";
 import * as Notification from "../../../Utils/Notifications.js";
-import { navigate } from "raviger";
+import {navigate} from "raviger";
 import loadable from "@loadable/component";
 
 const Loading = loadable(() => import("../../Common/Loading"));
@@ -135,44 +131,34 @@ const Investigation = (props: {
   };
 
   const handleSubmit = async (e: any) => {
-    if (!saving) {
+    if (!saving || state.form !== {}) {
       setSaving(true);
 
       const keys = Object.keys(state.form);
-      const data = keys
-        .map((k) => {
-          return {
-            investigation: k,
-            value: state.form[k]?.value,
-            notes: state.form[k]?.notes,
-            session: session,
-          };
-        })
-        .filter(
-          (i) => ![null, undefined, NaN, ""].includes(i.notes || i.value)
-        );
-
-      if (data.length) {
-        const res = await dispatch(
-          createInvestigation({ investigations: data }, props.consultationId)
-        );
-        if (res && res.status === 204) {
-          setSaving(false);
-          Notification.Success({
-            msg: "Investigation created successfully!",
-          });
-          navigate(
-            `/facility/${props.facilityId}/patient/${props.patientId}/consultation/${props.consultationId}`
-          );
-        } else {
-          setSaving(false);
-        }
-        return;
-      }
-      setSaving(false);
-      Notification.Error({
-        msg: "Please Enter at least one value",
+      const data = keys.map((k) => {
+        return {
+          investigation: k,
+          value: state.form[k]?.value,
+          notes: state.form[k]?.notes,
+          session: session,
+        };
       });
+
+      const res = await dispatch(
+        createInvestigation({ investigations: data }, props.consultationId)
+      );
+
+      if (res && res.status === 201 && res.data) {
+        setSaving(false);
+        Notification.Success({
+          msg: "Investigation created successfully!",
+        });
+        navigate(
+          `/facility/${props.facilityId}/patient/${props.patientId}/consultation/${props.consultationId}/`
+        );
+      } else {
+        setSaving(false);
+      }
     }
   };
 
@@ -215,7 +201,7 @@ const Investigation = (props: {
       <button
         className="btn btn-primary mt-4"
         onClick={handleSubmit}
-        disabled={saving || !selectedGroup.length}
+        disabled={saving || state.form === {}}
       >
         Save Investigation
       </button>

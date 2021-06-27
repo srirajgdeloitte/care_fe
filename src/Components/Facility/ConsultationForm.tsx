@@ -1,5 +1,5 @@
-import { t as Prescription_t } from "../Common/prescription-builder/types/Prescription__Prescription.gen";
-import loadable from "@loadable/component";
+import { t as Prescription_t } from '@coronasafe/prescription-builder/src/Types/Prescription__Prescription.gen';
+import loadable from '@loadable/component';
 import {
   Box,
   Button,
@@ -8,7 +8,7 @@ import {
   FormControlLabel,
   InputLabel,
   Radio,
-  RadioGroup,
+  RadioGroup
 } from "@material-ui/core";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import { navigate } from "raviger";
@@ -21,13 +21,13 @@ import {
   PATIENT_CATEGORY,
   SYMPTOM_CHOICES,
   TELEMEDICINE_ACTIONS,
-  REVIEW_AT_CHOICES,
+  REVIEW_AT_CHOICES
 } from "../../Common/constants";
 import { statusType, useAbortableEffect } from "../../Common/utils";
 import {
   createConsultation,
   getConsultation,
-  updateConsultation,
+  updateConsultation
 } from "../../Redux/actions";
 import * as Notification from "../../Utils/Notifications.js";
 import { FacilitySelect } from "../Common/FacilitySelect";
@@ -38,11 +38,12 @@ import {
   MultiSelectField,
   NativeSelectField,
   SelectField,
-  TextInputField,
+  TextInputField
 } from "../Common/HelperInputFields";
 import { make as PrescriptionBuilder } from "../Common/PrescriptionBuilder.gen";
 import { FacilityModel } from "./models";
 import { OnlineDoctorsSelect } from "../Common/OnlineDoctorsSelect";
+import { MBBSStudentSelect } from "../Common/MBBSStudentSelect";
 
 const Loading = loadable(() => import("../Common/Loading"));
 const PageTitle = loadable(() => import("../Common/PageTitle"));
@@ -65,8 +66,6 @@ const initForm: any = {
   diagnosis: "",
   verified_by: "",
   test_id: "",
-  is_kasp: "",
-  kasp_enabled_date: null,
   examination_details: "",
   existing_medication: "",
   prescribed_medication: "",
@@ -76,7 +75,7 @@ const initForm: any = {
   is_telemedicine: "false",
   action: "PENDING",
   assigned_to: "",
-  assigned_to_object: null,
+  assigned_to_mbbs_student: "",
 };
 
 const initError = Object.assign(
@@ -137,23 +136,24 @@ export const ConsultationForm = (props: any) => {
   const { facilityId, patientId, id } = props;
   const [state, dispatch] = useReducer(consultationFormReducer, initialState);
   const [dischargeAdvice, setDischargeAdvice] = useState<Prescription_t[]>([]);
-  const [selectedFacility, setSelectedFacility] =
-    useState<FacilityModel | null>(null);
+  const [
+    selectedFacility,
+    setSelectedFacility,
+  ] = useState<FacilityModel | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const headerText = !id ? "Consultation" : "Edit Consultation";
-  const buttonText = !id ? "Add Consultation" : "Update Consultation";
+  const headerText = !id
+    ? "Consultation"
+    : "Edit Consultation";
+  const buttonText = !id
+    ? "Add Consultation"
+    : "Update Consultation";
 
   const fetchData = useCallback(
     async (status: statusType) => {
       setIsLoading(true);
       const res = await dispatchAction(getConsultation(id));
-      if (
-        res &&
-        res.data &&
-        res.data.discharge_advice &&
-        Object.keys(res.data.discharge_advice).length != 0
-      ) {
+      if (res && res.data && res.data.discharge_advice && Object.keys(res.data.discharge_advice).length != 0) {
         setDischargeAdvice(res && res.data && res.data.discharge_advice);
       }
 
@@ -178,8 +178,8 @@ export const ConsultationForm = (props: any) => {
             verified_by: res.data.verified_by ? res.data.verified_by : "",
             OPconsultation: res.data.consultation_notes,
             is_telemedicine: `${res.data.is_telemedicine}`,
-            is_kasp: `${res.data.is_kasp}`,
             assigned_to: res.data.assigned_to || "",
+            assigned_to_mbbs_student: res.data.assigned_to_mbbs_student || ""
           };
           dispatch({ type: "set_form", form: formData });
         } else {
@@ -253,22 +253,7 @@ export const ConsultationForm = (props: any) => {
             errors[field] = "Please enter OP consultation Details";
             invalidForm = true;
           }
-          return;
-        case "is_telemedicine":
-          if (
-            state.form.admitted_to === "Home Isolation" &&
-            state.form[field] === "false"
-          ) {
-            errors[field] =
-              "Telemedicine should be `Yes` when Admitted To is Home Isolation";
-            invalidForm = true;
-          }
-          return;
-        case "is_kasp":
-          if (!state.form[field]) {
-            errors[field] = "Please select an option, Kasp is mandatory";
-            invalidForm = true;
-          }
+
           return;
         default:
           return;
@@ -289,23 +274,13 @@ export const ConsultationForm = (props: any) => {
       setIsLoading(true);
       const data = {
         symptoms: state.form.symptoms,
-        other_symptoms: state.form.otherSymptom
-          ? state.form.other_symptoms
-          : undefined,
-        symptoms_onset_date: state.form.hasSymptom
-          ? state.form.symptoms_onset_date
-          : undefined,
+        other_symptoms: state.form.otherSymptom ? state.form.other_symptoms : undefined,
+        symptoms_onset_date: state.form.hasSymptom ? state.form.symptoms_onset_date : undefined,
         suggestion: state.form.suggestion,
         admitted: JSON.parse(state.form.admitted),
-        admitted_to: JSON.parse(state.form.admitted)
-          ? state.form.admitted_to
-          : undefined,
-        admission_date: JSON.parse(state.form.admitted)
-          ? state.form.admission_date
-          : undefined,
+        admitted_to: JSON.parse(state.form.admitted) ? state.form.admitted_to : undefined,
+        admission_date: JSON.parse(state.form.admitted) ? state.form.admission_date : undefined,
         category: state.form.category,
-        is_kasp: state.form.is_kasp,
-        kasp_enabled_date: state.form.is_kasp === "true" ? new Date() : null,
         examination_details: state.form.examination_details,
         existing_medication: state.form.existing_medication,
         prescribed_medication: state.form.prescribed_medication,
@@ -317,20 +292,19 @@ export const ConsultationForm = (props: any) => {
         patient: patientId,
         facility: facilityId,
         test_id: state.form.test_id,
-        referred_to:
-          state.form.suggestion === "R" ? state.form.referred_to : undefined,
+        referred_to: state.form.suggestion === "R" ? state.form.referred_to : undefined,
         consultation_notes: state.form.OPconsultation,
         is_telemedicine: state.form.is_telemedicine,
         action: state.form.action,
         review_time: state.form.review_time,
-        assigned_to:
-          state.form.is_telemedicine === "true" ? state.form.assigned_to : "",
+        assigned_to: state.form.assigned_to,
+        assigned_to_mbbs_student: state.form.assigned_to_mbbs_student,
       };
       const res = await dispatchAction(
         id ? updateConsultation(id, data) : createConsultation(data)
       );
       setIsLoading(false);
-      if (res && res.data && res.status !== 400) {
+      if (res && res.data) {
         dispatch({ type: "set_form", form: initForm });
         if (id) {
           Notification.Success({
@@ -357,20 +331,18 @@ export const ConsultationForm = (props: any) => {
     const form = { ...state.form };
     const { name, value } = e.target;
     form[name] = value;
-    if (value === "false") {
+    if (value === "false"){
       form.action = "PENDING";
     }
     dispatch({ type: "set_form", form });
-  };
+  }
 
   const handleDecisionChange = (e: any) => {
     const form = { ...state.form };
     const { name, value } = e.target;
     form[name] = value;
-    if (value === "A") {
+    if (value === 'A') {
       form.admitted = "true";
-    } else {
-      form.admitted = "false";
     }
     dispatch({ type: "set_form", form });
   };
@@ -399,10 +371,15 @@ export const ConsultationForm = (props: any) => {
     }
   };
 
-  const handleDoctorSelect = (doctor: any) => {
+  const handleOnSelect = (id: string) => {
     const form = { ...state.form };
-    form["assigned_to"] = doctor.id;
-    form["assigned_to_object"] = doctor;
+    form['assigned_to'] = id;
+    dispatch({ type: "set_form", form });
+  };
+
+  const handleOnSelectMBBS = (id: string) => {
+    const form = { ...state.form };
+    form['assigned_to_mbbs_student'] = id;
     dispatch({ type: "set_form", form });
   };
 
@@ -426,7 +403,7 @@ export const ConsultationForm = (props: any) => {
             <CardContent>
               <div className="grid gap-4 grid-cols-1">
                 <div>
-                  <InputLabel id="symptoms-label">Symptoms*</InputLabel>
+                  <InputLabel id="symptoms-label">Symptoms</InputLabel>
                   <MultiSelectField
                     name="symptoms"
                     variant="outlined"
@@ -460,7 +437,7 @@ export const ConsultationForm = (props: any) => {
                 {state.form.hasSymptom && (
                   <div>
                     <DateInputField
-                      label="Date of onset of the symptoms*"
+                      label="Date of onset of the symptoms"
                       value={state.form.symptoms_onset_date}
                       onChange={(date) =>
                         handleDateChange(date, "symptoms_onset_date")
@@ -546,7 +523,7 @@ export const ConsultationForm = (props: any) => {
                     id="suggestion-label"
                     style={{ fontWeight: "bold", fontSize: "18px" }}
                   >
-                    Decision after Consultation*
+                    Decision after Consultation
                   </InputLabel>
                   <NativeSelectField
                     name="suggestion"
@@ -652,10 +629,7 @@ export const ConsultationForm = (props: any) => {
               </div>
               <div className="mt-4">
                 <InputLabel>Medication</InputLabel>
-                <PrescriptionBuilder
-                  prescriptions={dischargeAdvice}
-                  setPrescriptions={setDischargeAdvice}
-                />
+                <PrescriptionBuilder prescriptions={dischargeAdvice} setPrescriptions={setDischargeAdvice} />
               </div>
 
               <div>
@@ -685,7 +659,9 @@ export const ConsultationForm = (props: any) => {
                 />
               </div>
               <div>
-                <InputLabel id="exam-details-label">Verified By</InputLabel>
+                <InputLabel id="exam-details-label">
+                  Verified By
+                </InputLabel>
                 <MultilineInputField
                   rows={3}
                   name="verified_by"
@@ -702,7 +678,9 @@ export const ConsultationForm = (props: any) => {
                 />
               </div>
               <div>
-                <InputLabel id="exam-details-label">Diagnosis</InputLabel>
+                <InputLabel id="exam-details-label">
+                  Diagnosis
+                </InputLabel>
                 <MultilineInputField
                   rows={5}
                   name="diagnosis"
@@ -717,31 +695,6 @@ export const ConsultationForm = (props: any) => {
                   onChange={handleChange}
                   errors={state.errors.diagnosis}
                 />
-              </div>
-
-              <div className="flex-1">
-                <InputLabel id="admitted-label">Kasp*</InputLabel>
-                <RadioGroup
-                  aria-label="covid"
-                  name="is_kasp"
-                  value={state.form.is_kasp}
-                  onChange={handleTelemedicineChange}
-                  style={{ padding: "0px 5px" }}
-                >
-                  <Box display="flex" flexDirection="row">
-                    <FormControlLabel
-                      value="true"
-                      control={<Radio />}
-                      label="Yes"
-                    />
-                    <FormControlLabel
-                      value="false"
-                      control={<Radio />}
-                      label="No"
-                    />
-                  </Box>
-                </RadioGroup>
-                <ErrorHelperText error={state.errors.is_kasp} />
               </div>
               {/* Telemedicine Fields */}
               <div className="flex">
@@ -772,40 +725,32 @@ export const ConsultationForm = (props: any) => {
 
                 {JSON.parse(state.form.is_telemedicine) && (
                   <div className="flex-1">
-                    <InputLabel id="review_time-label">
-                      Review After{" "}
-                    </InputLabel>
+                    <InputLabel id="review_time-label">Review After </InputLabel>
                     <SelectField
                       name="review_time"
                       variant="standard"
                       value={state.form.review_time}
-                      options={[
-                        { id: "", text: "select" },
-                        ...REVIEW_AT_CHOICES,
-                      ]}
+                      options={[{ id: "", text: "select" }, ...REVIEW_AT_CHOICES]}
                       onChange={handleChange}
                       errors={state.errors.review_time}
                     />
                   </div>
                 )}
               </div>
-              {JSON.parse(state.form.is_telemedicine) && (
-                <div className="md:col-span-1">
-                  <OnlineDoctorsSelect
-                    userId={state.form.assigned_to}
-                    selectedDoctor={state.form.assigned_to_object}
-                    onSelect={handleDoctorSelect}
-                  />
-                </div>
-              )}
-              {JSON.parse(state.form.is_telemedicine) && (
+              <div className="md:col-span-1">
+                <OnlineDoctorsSelect userId={state.form.assigned_to} onSelect={handleOnSelect} />
+              </div>
+              <div className="md:col-span-1">
+                <MBBSStudentSelect userId={state.form.assigned_to_mbbs_student} onSelect={handleOnSelectMBBS} />
+              </div>
+              {JSON.parse(state.form.is_telemedicine) &&
                 <div>
                   <InputLabel
                     id="action-label"
                     style={{ fontWeight: "bold", fontSize: "18px" }}
                   >
                     Action
-                  </InputLabel>
+                </InputLabel>
                   <NativeSelectField
                     name="action"
                     variant="outlined"
@@ -816,17 +761,14 @@ export const ConsultationForm = (props: any) => {
                     onChange={handleChange}
                   />
                   <ErrorHelperText error={state.errors.action} />
-                </div>
-              )}
+                </div>}
               {/* End of Telemedicine fields */}
               <div className="mt-4 flex justify-between">
                 <Button
                   color="default"
                   variant="contained"
                   type="button"
-                  onClick={(_) =>
-                    navigate(`/facility/${facilityId}/patient/${patientId}`)
-                  }
+                  onClick={_ => navigate(`/facility/${facilityId}/patient/${patientId}`)}
                 >
                   Cancel{" "}
                 </Button>
@@ -847,6 +789,6 @@ export const ConsultationForm = (props: any) => {
           </form>
         </div>
       </div>
-    </div>
+    </div >
   );
 };

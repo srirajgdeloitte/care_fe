@@ -5,9 +5,10 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const WorkboxPlugin = require("workbox-webpack-plugin");
-const MomentLocalesPlugin = require("moment-locales-webpack-plugin");
-const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const safePostCssParser = require("postcss-safe-parser");
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const safePostCssParser = require('postcss-safe-parser');
+
 
 const prodPlugins = (isDev) => {
   if (isDev) {
@@ -19,17 +20,17 @@ const prodPlugins = (isDev) => {
       clientsClaim: true,
       skipWaiting: true,
       maximumFileSizeToCacheInBytes: 7340032,
-      exclude: ["build-meta.json", /\.map$/],
-    }),
-  ];
-};
+      exclude: ['build-meta.json', /\.map$/]
+    })
+  ]
+}
 
 module.exports = (env, argv) => {
   const mode = argv.mode || "development";
   const isDev = mode !== "production";
   const app = ["./src/index.tsx"];
   if (isDev) {
-    app.push("webpack-dev-server/client");
+    app.push("webpack-dev-server/client")
   }
   return {
     entry: {
@@ -44,19 +45,17 @@ module.exports = (env, argv) => {
     },
     optimization: {
       moduleIds: "hashed",
-      splitChunks: isDev
-        ? false
-        : {
-            cacheGroups: {
-              commons: {
-                test: /[\\/]node_modules[\\/]/,
-                name: false,
-                chunks: "all",
-              },
-            },
+      splitChunks: isDev? false : {
+        cacheGroups: {
+          commons: {
+            test: /[\\/]node_modules[\\/]/,
+            name: false,
+            chunks: "all",
           },
+        },
+      },
       runtimeChunk: {
-        name: (entrypoint) => `runtime-${entrypoint.name}`,
+        name: entrypoint => `runtime-${entrypoint.name}`,
       },
     },
     devtool: isDev ? "eval-cheap-module-source-map" : "none",
@@ -72,7 +71,9 @@ module.exports = (env, argv) => {
       port: 4000,
       proxy: {
         "/api": {
-          target: "https://careapi.coronasafe.in/",
+          // target: "http://1.23.183.203/api/",
+          // target: "https://api-haryana.coronacare.in/",
+          target: "http://localhost:8000/",
           changeOrigin: true,
         },
       },
@@ -82,7 +83,10 @@ module.exports = (env, argv) => {
       rules: [
         {
           test: /\.(ts|tsx)$/,
-          include: [path.resolve(__dirname, "src")],
+          include: [
+            path.resolve(__dirname, 'src'),
+            path.resolve(__dirname, 'node_modules/@coronasafe')
+          ],
           loader: "ts-loader",
         },
         {
@@ -92,7 +96,12 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.(sa|sc|c)ss$/,
-          use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
+          use: [
+            MiniCssExtractPlugin.loader,
+            "css-loader",
+            "sass-loader",
+            "postcss-loader",
+          ],
         },
         {
           test: /\.(png|jpe?g|gif)$/i,
@@ -127,36 +136,34 @@ module.exports = (env, argv) => {
             // build meata contains version no for latest build. check "generate-build-meta" package script
             from: "public/build-meta.json",
             to: "build-meta.json",
-            noErrorOnMissing: isDev,
-          },
+            noErrorOnMissing: isDev
+          }
         ],
       }),
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, "src", "index.html"),
         title: "Coronasafe Care",
-        minify: isDev
-          ? false
-          : {
-              removeComments: true,
-              collapseWhitespace: true,
-              removeRedundantAttributes: true,
-              useShortDoctype: true,
-              removeEmptyAttributes: true,
-              removeStyleLinkTypeAttributes: true,
-              keepClosingSlash: true,
-              minifyJS: true,
-              minifyCSS: true,
-              minifyURLs: true,
-            },
+        minify: isDev ? false : {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeRedundantAttributes: true,
+          useShortDoctype: true,
+          removeEmptyAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          keepClosingSlash: true,
+          minifyJS: true,
+          minifyCSS: true,
+          minifyURLs: true,
+        },
       }),
       new OptimizeCssAssetsPlugin({
         cssProcessorOptions: {
           parser: safePostCssParser,
-          map: false,
+          map: false
         },
         cssProcessorPluginOptions: {
-          preset: ["default", { minifyFontValues: { removeQuotes: false } }],
+          preset: ['default', { minifyFontValues: { removeQuotes: false } }],
         },
       }),
 
@@ -167,8 +174,9 @@ module.exports = (env, argv) => {
           ? "css/[name][hash].bundle.css"
           : "css/[name][hash].prod.bundle.css",
       }),
-      ...prodPlugins(isDev),
+      ...prodPlugins(isDev)
     ],
     performance: false,
   };
+
 };

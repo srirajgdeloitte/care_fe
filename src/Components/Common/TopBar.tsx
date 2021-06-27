@@ -1,18 +1,16 @@
 import React from "react";
-import LanguageSelector from "./LanguageSelector";
+import Sanjeevani from "../../Common/images/Sanjeevani.png";
 
-const img = "https://cdn.coronasafe.network/black-logo.svg";
+const img =
+  "https://cdn.coronasafe.network/black-logo.svg";
 const TopBar = () => {
   return (
     <div className="bg-white shadow-md">
-      <div className="max-w-6xl mx-auto py-4 px-2 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto py-4 px-2">
         <div>
           <a href={"/"}>
-            <img src={img} style={{ height: "25px" }} alt="care logo" />{" "}
+            <img src={Sanjeevani} style={{ height: "25px" }} alt="sanjeevani logo" />{" "}
           </a>
-        </div>
-        <div>
-          <LanguageSelector className="bg-green-500 text-white" />
         </div>
       </div>
     </div>

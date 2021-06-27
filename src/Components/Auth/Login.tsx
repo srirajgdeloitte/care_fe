@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { postLogin } from "../../Redux/actions";
 import { navigate } from "raviger";
 import { CardActions, CardContent, Grid } from "@material-ui/core";
 import { TextInputField } from "../Common/HelperInputFields";
 import { PublicDashboard } from "../Dashboard/PublicDashboard";
-import { withTranslation } from "react-i18next";
 import ReCaptcha from "react-google-recaptcha";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import LanguageSelector from "../Common/LanguageSelector";
+import HaryanaGov from "../../Common/images/Haryana_Gov.png";
+import Sanjeevani from "../../Common/images/Sanjeevani.png";
+import "./styles/login.css";
 const get = require("lodash.get");
 
-const LoginPage = (props: any) => {
+export const Login = () => {
   const dispatch: any = useDispatch();
   const initForm: any = {
     username: "",
@@ -23,8 +24,18 @@ const LoginPage = (props: any) => {
   const [errors, setErrors] = useState(initErr);
   const [isCaptchaEnabled, setCaptcha] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const captchaKey = "6LdvxuQUAAAAADDWVflgBqyHGfq-xmvNJaToM0pN";
-  const { t } = props;
+
+  const captchaKey = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
+
+  const govLogo = {
+    display: 'flex',
+    justifyContent: 'center',
+    height: '300px',
+  }
+
+  const loginWidth = {
+    maxWidth: '400px'
+  }
 
   const handleChange = (e: any) => {
     const { value, name } = e.target;
@@ -52,12 +63,12 @@ const LoginPage = (props: any) => {
       ) {
         if (!form[key].match(/\w/)) {
           hasError = true;
-          err[key] = t("field_required");
+          err[key] = "This field is required";
         }
       }
       if (!form[key]) {
         hasError = true;
-        err[key] = t("field_required");
+        err[key] = "This field is required";
       }
     });
     if (hasError) {
@@ -76,6 +87,7 @@ const LoginPage = (props: any) => {
         const statusCode = get(resp, "status", "");
         if (res && statusCode === 429) {
           setCaptcha(true);
+          window.location.reload();
         } else if (res && statusCode === 200) {
           localStorage.setItem("care_access_token", res.access);
           localStorage.setItem("care_refresh_token", res.refresh);
@@ -95,17 +107,14 @@ const LoginPage = (props: any) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen relative">
-      <div className="absolute top-2 right-2">
-        <LanguageSelector className="md:bg-green-500 md:text-white bg-white" />
-      </div>
-      <div className="flex flex-col justify-center h-1/2 md:w-1/2 md:h-full bg-green-500">
+    <div className="flex flex-col md:flex-row h-screen">
+      <div className="flex flex-col justify-center h-1/2 md:w-1/2 md:h-full bg-color-haryana">
         <div className="pl-1/5">
           <a href={"/"}>
             <img
-              src="https://cdn.coronasafe.network/light-logo.svg"
-              className="h-8 w-auto"
-              alt="care logo"
+              src={Sanjeevani}
+              width=" 250"
+              alt="sanjeevani logo"
             />{" "}
           </a>
         </div>
@@ -115,28 +124,32 @@ const LoginPage = (props: any) => {
       </div>
 
       <div className="flex items-center justify-center w-full mt-4 md:mt-0 md:w-1/2 md:h-full">
-        <div className="bg-white mt-4 md:mt-20 rounded-lg px-4 py-4">
-          <div className="text-2xl font-bold text-center pt-4 text-green-600">
-            {t("auth_login_title")}
+        <div style={loginWidth} className="bg-white mt-4 md:mt-20 rounded-lg px-4 py-4">
+          <div style={govLogo}>
+            <img src={HaryanaGov} alt='haryana gov logo' />
           </div>
-          <form onSubmit={(e) => handleSubmit(e)}>
+          <div className="text-2xl font-bold text-center pt-4">
+            Authorized Login
+          </div>
+          <form className="input-form-haryana" onSubmit={(e) => handleSubmit(e)}>
             <CardContent>
               <TextInputField
                 name="username"
-                label={t("username")}
+                label="User Name"
                 variant="outlined"
                 margin="dense"
                 InputLabelProps={{ shrink: !!form.username }}
                 value={form.username}
                 onChange={handleChange}
                 errors={errors.username}
+                color='primary'
               />
               <div className="relative w-full">
                 <TextInputField
                   className="w-full"
                   type={showPassword ? "text" : "password"}
                   name="password"
-                  label={t("password")}
+                  label="Password"
                   variant="outlined"
                   margin="dense"
                   autoComplete="off"
@@ -173,17 +186,17 @@ const LoginPage = (props: any) => {
                 <div className="w-full flex justify-between items-center px-4 pb-4">
                   <a
                     href="/forgot-password"
-                    className="text-sm text-green-400 hover:text-green-500"
+                    className="text-sm link-color-haryana"
                   >
-                    {t("forget_password")}
+                    Forgot password?
                   </a>
                 </div>
 
                 <button
-                  className="w-full bg-green-500 btn text-white"
+                  className="w-full bg-color-haryana btn text-white"
                   onClick={(e) => handleSubmit(e)}
                 >
-                  {t("login")}
+                  Login
                 </button>
               </Grid>
             </CardActions>
@@ -193,5 +206,3 @@ const LoginPage = (props: any) => {
     </div>
   );
 };
-
-export const Login = withTranslation()(LoginPage);

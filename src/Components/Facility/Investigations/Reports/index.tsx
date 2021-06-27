@@ -16,9 +16,8 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { InputLabel, makeStyles, CircularProgress } from "@material-ui/core";
 import { InvestigationResponse } from "./types";
 import ReportTable from "./ReportTable";
-import * as Notification from "../../../../Utils/Notifications";
 
-const RESULT_PER_PAGE = 14;
+const RESULT_PER_PAGE = 15;
 
 const useStyle = makeStyles({
   button: {
@@ -31,7 +30,7 @@ interface InitialState {
   selectedGroup: string[];
   investigations: InvestigationType[];
   selectedInvestigations: any[];
-  investigationTableData: InvestigationResponse;
+  investigtaionTableData: InvestigationResponse;
   isLoading: {
     investigationLoading: boolean;
     investigationGroupLoading: boolean;
@@ -44,7 +43,7 @@ const initialState: InitialState = {
   selectedGroup: [],
   investigations: [],
   selectedInvestigations: [],
-  investigationTableData: [],
+  investigtaionTableData: [],
   isLoading: {
     investigationLoading: false,
     investigationGroupLoading: false,
@@ -78,10 +77,10 @@ const investigationReportsReducer = (state = initialState, action: any) => {
         selectedInvestigations: action.payload,
       };
     }
-    case "set_investigation_table_data": {
+    case "set_investigtaion_table_data": {
       return {
         ...state,
-        investigationTableData: action.payload,
+        investigtaionTableData: action.payload,
       };
     }
     case "set_loading": {
@@ -110,7 +109,7 @@ const InvestigationReports = ({ id }: any) => {
   const {
     investigationGroups,
     investigations,
-    investigationTableData,
+    investigtaionTableData,
     isLoading,
     selectedGroup,
     selectedInvestigations,
@@ -124,10 +123,9 @@ const InvestigationReports = ({ id }: any) => {
       });
 
       const pageStart = ((curPage || 1) - 1) * RESULT_PER_PAGE;
-      const investigationsParams = (
-        selectedInvestigations.length
-          ? selectedInvestigations.map((i) => i.external_id)
-          : investigations.map((i) => i.external_id)
+      const investigationsParams = (selectedInvestigations.length
+        ? selectedInvestigations.map((i) => i.external_id)
+        : investigations.map((i) => i.external_id)
       )
         .slice(pageStart, pageStart + RESULT_PER_PAGE)
         .join(",");
@@ -208,7 +206,7 @@ const InvestigationReports = ({ id }: any) => {
 
   const handleGroupSelect = (e: any) => {
     dispatch({ type: "set_investigations", payload: [] });
-    dispatch({ type: "set_investigation_table_data", payload: [] });
+    dispatch({ type: "set_investigtaion_table_data", payload: [] });
     dispatch({ type: "set_selected_investigations", payload: [] });
     dispatch({ type: "set_loading", payload: initialState.isLoading });
     dispatch({ type: "set_selected_group", payload: e.target.value });
@@ -221,8 +219,8 @@ const InvestigationReports = ({ id }: any) => {
   const handleLoadMore = (e: any) => {
     const onSuccess = (data: any) => {
       dispatch({
-        type: "set_investigation_table_data",
-        payload: [...state.investigationTableData, ...data.results],
+        type: "set_investigtaion_table_data",
+        payload: [...state.investigtaionTableData, ...data.results],
       });
     };
 
@@ -239,14 +237,8 @@ const InvestigationReports = ({ id }: any) => {
         } else {
           setIsNextSessionDisabled(false);
           setIsLoadMoreDisabled(false);
-
-          if (!data.results.length) {
-            Notification.Error({
-              msg: "No Investigation data available!",
-            });
-          }
           dispatch({
-            type: "set_investigation_table_data",
+            type: "set_investigtaion_table_data",
             payload: data.results,
           });
         }
@@ -342,7 +334,6 @@ const InvestigationReports = ({ id }: any) => {
                         Select Investigations (all investigations will be
                         selected by default)
                       </InputLabel>
-
                       <TextField
                         margin="dense"
                         {...params}
@@ -374,7 +365,7 @@ const InvestigationReports = ({ id }: any) => {
             </>
           )}
           <section id="reports_section">
-            {!!investigationTableData.length && (
+            {!!investigtaionTableData.length && (
               <>
                 <ButtonGroup
                   disableElevation
@@ -395,12 +386,10 @@ const InvestigationReports = ({ id }: any) => {
                     {isLoading.tableData ? "Loading..." : "Next Sessions"}
                   </Button>
                 </ButtonGroup>
-
                 <ReportTable
-                  investigationData={investigationTableData}
+                  investigationData={investigtaionTableData}
                   title="Report"
                 />
-
                 {!!isLoading.tableData && (
                   <CircularProgress className={className.button} />
                 )}

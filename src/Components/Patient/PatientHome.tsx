@@ -85,7 +85,7 @@ interface preDischargeFormInterface {
   donatePlasma: donatePlasmaOptionType;
   disease_status?: string;
   srf_id?: string;
-  date_of_test: any;
+  date_of_test?: string;
 }
 
 export const PatientHome = (props: any) => {
@@ -162,13 +162,13 @@ export const PatientHome = (props: any) => {
 
   const initPreDischargeForm: preDischargeFormInterface = {
     donatePlasma: null,
-    date_of_test: null,
   };
 
   const [isSendingDischargeApi, setIsSendingDischargeApi] = useState(false);
 
-  const [preDischargeForm, setPreDischargeForm] =
-    useState(initPreDischargeForm);
+  const [preDischargeForm, setPreDischargeForm] = useState(
+    initPreDischargeForm
+  );
 
   const handlePreDischargeFormChange = (key: string, event: any) => {
     if (key === "date_of_test") {
@@ -202,7 +202,8 @@ export const PatientHome = (props: any) => {
       ).then((response: any) => {
         if ((response || {}).status === 200) {
           Notification.Success({
-            msg: "We will be sending an email shortly. Please check your inbox.",
+            msg:
+              "We will be sending an email shortly. Please check your inbox.",
           });
         }
       });
@@ -485,9 +486,8 @@ export const PatientHome = (props: any) => {
     return <Loading />;
   }
 
-  const patientGender = GENDER_TYPES.find(
-    (i) => i.id === patientData.gender
-  )?.text;
+  const patientGender = GENDER_TYPES.find((i) => i.id === patientData.gender)
+    ?.text;
 
   let patientMedHis: any[] = [];
   if (
@@ -626,20 +626,9 @@ export const PatientHome = (props: any) => {
                     Phone
                   </div>
                   <div className="mt-1 text-sm leading-5 text-gray-900">
-                    <div>
-                      <a href={`tel:${patientData.phone_number}`}>
-                        {patientData.phone_number || "-"}
-                      </a>
-                    </div>
-                    <div>
-                      <a
-                        href={`https://wa.me/${patientData.phone_number}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <i className="fab fa-whatsapp"></i> Chat on WhatsApp
-                      </a>
-                    </div>
+                    <a href={`tel:${patientData.phone_number}`}>
+                      {patientData.phone_number || "-"}
+                    </a>
                   </div>
                 </div>
                 <div className="sm:col-span-1">
@@ -647,20 +636,9 @@ export const PatientHome = (props: any) => {
                     Emergency Contact
                   </div>
                   <div className="mt-1 text-sm leading-5 text-gray-900">
-                    <div>
-                      <a href={`tel:${patientData.emergency_phone_number}`}>
-                        {patientData.emergency_phone_number || "-"}
-                      </a>
-                    </div>
-                    <div>
-                      <a
-                        href={`https://wa.me/${patientData.emergency_phone_number}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <i className="fab fa-whatsapp"></i> Chat on WhatsApp
-                      </a>
-                    </div>
+                    <a href={`tel:${patientData.emergency_phone_number}`}>
+                      {patientData.emergency_phone_number || "-"}
+                    </a>
                   </div>
                 </div>
                 <div className="sm:col-span-1">
@@ -678,36 +656,6 @@ export const PatientHome = (props: any) => {
                     </div>
                     <div className="mt-1 text-sm leading-5 text-gray-900">
                       {moment(patientData.date_of_return).format("LL")}
-                    </div>
-                  </div>
-                )}
-                {patientData.is_vaccinated && patientData.number_of_doses && (
-                  <div className="sm:col-span-1">
-                    <div className="text-sm leading-5 font-medium text-gray-500">
-                      Number of vaccine doses
-                    </div>
-                    <div className="mt-1 text-sm leading-5 text-gray-900">
-                      {patientData.number_of_doses}
-                    </div>
-                  </div>
-                )}
-                {patientData.is_vaccinated && patientData.vaccine_name && (
-                  <div className="sm:col-span-1">
-                    <div className="text-sm leading-5 font-medium text-gray-500">
-                      Vaccine name
-                    </div>
-                    <div className="mt-1 text-sm leading-5 text-gray-900">
-                      {patientData.vaccine_name}
-                    </div>
-                  </div>
-                )}
-                {patientData.is_vaccinated && patientData.last_vaccinated_date && (
-                  <div className="sm:col-span-1">
-                    <div className="text-sm leading-5 font-medium text-gray-500">
-                      Last Vaccinated on
-                    </div>
-                    <div className="mt-1 text-sm leading-5 text-gray-900">
-                      {moment(patientData.last_vaccinated_date).format("LL")}
                     </div>
                   </div>
                 )}
@@ -737,6 +685,7 @@ export const PatientHome = (props: any) => {
                     text="Not Vaccinated"
                   />
                 )}
+
                 {patientData.allow_transfer ? (
                   <Badge color="yellow" icon="unlock" text="Transfer Allowed" />
                 ) : (
@@ -765,9 +714,6 @@ export const PatientHome = (props: any) => {
                     icon="exclamation-triangle"
                     text="Travel (within last 28 days)"
                   />
-                )}
-                {patientData.last_consultation?.is_telemedicine && (
-                  <Badge color="purple" icon="phone" text="Telemedicine" />
                 )}
               </div>
             </div>
@@ -848,19 +794,6 @@ export const PatientHome = (props: any) => {
                 </div>
               </div>
               <div className="space-y-2 py-2">
-                {patientData.disease_status === "EXPIRED" && (
-                  <div>
-                    <button
-                      className="btn btn-primary w-full"
-                      name="death_report"
-                      disabled={!patientData.is_active}
-                      onClick={() => navigate(`/death_report/${id}`)}
-                    >
-                      <i className="fas fa-file-download mr-2" />
-                      Death Report
-                    </button>
-                  </div>
-                )}
                 <div>
                   <button
                     className="btn btn-primary w-full"
@@ -1434,18 +1367,6 @@ export const PatientHome = (props: any) => {
                 <div>
                   <button
                     className="btn btn-primary w-full"
-                    onClick={() =>
-                      navigate(
-                        `/facility/${facilityId}/patient/${id}/notes/`
-                      )
-                    }
-                  >
-                    View Patient Notes
-                  </button>
-                </div>
-                <div>
-                  <button
-                    className="btn btn-primary w-full"
                     onClick={handleClickOpen}
                   >
                     Discharge Summary
@@ -1593,7 +1514,7 @@ export const PatientHome = (props: any) => {
                   margin="dense"
                   type="text"
                   placeholder="SRF ID"
-                  value={preDischargeForm.srf_id}
+                  value={preDischargeForm.srf_id || patientData.srf_id}
                   onChange={(event) =>
                     handlePreDischargeFormChange("srf_id", event)
                   }
@@ -1604,7 +1525,10 @@ export const PatientHome = (props: any) => {
                   className="flex flex-1 ml-5"
                   fullWidth={true}
                   label="Date of test"
-                  value={preDischargeForm.date_of_test}
+                  value={
+                    preDischargeForm.date_of_test ||
+                    (patientData.date_of_test as string)
+                  }
                   onChange={(event) =>
                     handlePreDischargeFormChange("date_of_test", event)
                   }

@@ -54,7 +54,6 @@ const initForm: any = {
   assigned_facility_type: "",
   preferred_vehicle_choice: "",
   assigned_to: "",
-  initial_status: "",
 };
 
 const requiredFields: any = {
@@ -147,7 +146,8 @@ export const ShiftDetailsUpdate = (props: patientShiftProps) => {
     if (validForm) {
       setIsLoading(true);
 
-      const data: any = {
+      const data = {
+        status: state.form.status,
         orgin_facility: state.form.orgin_facility_object?.id,
         shifting_approving_facility:
           state.form?.shifting_approving_facility_object?.id,
@@ -162,12 +162,8 @@ export const ShiftDetailsUpdate = (props: patientShiftProps) => {
         assigned_facility_type: state.form.assigned_facility_type,
         preferred_vehicle_choice: state.form.preferred_vehicle_choice,
         assigned_to: state.form.assigned_to,
-        breathlessness_level: state.form.breathlessness_level,
+        breathlessness_level: state.form.breathlessness_level
       };
-
-      if (state.form.status !== state.form.initial_status) {
-        data["status"] = state.form.status;
-      }
 
       const res = await dispatchAction(updateShift(props.id, data));
       setIsLoading(false);
@@ -191,9 +187,7 @@ export const ShiftDetailsUpdate = (props: patientShiftProps) => {
       const res = await dispatchAction(getShiftDetails({ id: props.id }));
       if (!status.aborted) {
         if (res && res.data) {
-          const d = res.data;
-          d["initial_status"] = res.data.status;
-          dispatch({ type: "set_form", form: d });
+          dispatch({ type: "set_form", form: res.data });
         }
         setIsLoading(false);
       }
@@ -210,6 +204,7 @@ export const ShiftDetailsUpdate = (props: patientShiftProps) => {
 
   const vehicleOptions = SHIFTING_VEHICLE_CHOICES.map((obj) => obj.text);
   const facilityOptions = FACILITY_TYPES.map((obj) => obj.text);
+  const breathlessnessLevels = BREATHLESSNESS_LEVEL;
 
   if (isLoading) {
     return <Loading />;
@@ -242,7 +237,6 @@ export const ShiftDetailsUpdate = (props: patientShiftProps) => {
                   facilityId={
                     state.form?.shifting_approving_facility_object?.id
                   }
-                  placeholder="Assign a Shifting Staff"
                 />
               </div>
               <div>
@@ -250,7 +244,6 @@ export const ShiftDetailsUpdate = (props: patientShiftProps) => {
                 <FacilitySelect
                   multiple={false}
                   name="shifting_approving_facility"
-                  facilityType={1300}
                   selected={state.form.shifting_approving_facility_object}
                   setSelected={(obj) =>
                     setFacility(obj, "shifting_approving_facility_object")
@@ -388,14 +381,14 @@ export const ShiftDetailsUpdate = (props: patientShiftProps) => {
                 />
               </div>
               <div className="md:col-span-1">
-                <InputLabel>Severity of Breathlessness*</InputLabel>
+                <InputLabel>Severity of Breathlessness</InputLabel>
                 <SelectField
                   name="breathlessness_level"
                   variant="outlined"
                   margin="dense"
                   optionArray={true}
                   value={state.form.breathlessness_level}
-                  options={BREATHLESSNESS_LEVEL}
+                  options={breathlessnessLevels}
                   onChange={handleChange}
                   className="bg-white h-14 w-1/3 mt-2 shadow-sm md:text-sm md:leading-5"
                 />

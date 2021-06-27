@@ -12,7 +12,6 @@ import { TriageForm } from "../Components/Facility/TriageForm";
 import { DailyRoundListDetails } from "../Components/Patient/DailyRoundListDetails";
 import { DailyRounds } from "../Components/Patient/DailyRounds";
 import { PatientManager } from "../Components/Patient/ManagePatients";
-import  PatientNotes  from "../Components/Patient/PatientNotes";
 import { PatientHome } from "../Components/Patient/PatientHome";
 import { PatientRegister } from "../Components/Patient/PatientRegister";
 import { SampleDetails } from "../Components/Patient/SampleDetails";
@@ -33,11 +32,6 @@ import ShiftBoardView from "../Components/Shifting/BoardView";
 import ShiftListView from "../Components/Shifting/ListView";
 import ShiftDetails from "../Components/Shifting/ShiftDetails";
 import { ShiftDetailsUpdate } from "../Components/Shifting/ShiftDetailsUpdate";
-import ResourceCreate from "../Components/Resource/ResourceCreate";
-import ResourceBoardView from "../Components/Resource/ResourceBoardView";
-import ResourceListView from "../Components/Resource/ListView";
-import ResourceDetails from "../Components/Resource/ResourceDetails";
-import { ResourceDetailsUpdate } from "../Components/Resource/ResourceDetailsUpdate";
 import ResultList from "../Components/ExternalResult/ResultList";
 import ResultItem from "../Components/ExternalResult/ResultItem";
 import ExternalResultUpload from "../Components/ExternalResult/ExternalResultUpload";
@@ -47,12 +41,16 @@ import Investigation from "../Components/Facility/Investigations";
 import ViewInvestigations from "../Components/Facility/Investigations/ViewInvestigations";
 import ShowInvestigation from "../Components/Facility/Investigations/ShowInvestigation";
 import InvestigationReports from "../Components/Facility/Investigations/Reports";
-import { withTranslation } from "react-i18next";
-import DeathReport from "../Components/DeathReport/DeathReport";
+import { USER_TYPES } from "../Common/constants";
+import Sanjeevani from "../Common/images/Sanjeevani.png";
 
 const get = require("lodash.get");
 const img = "https://cdn.coronasafe.network/light-logo.svg";
 const logoBlack = "https://cdn.coronasafe.network/black-logo.svg";
+
+const navStyle = {
+  backgroundColor: "#105b7a",
+}
 
 const routes = {
   "/": () => <HospitalList />,
@@ -77,9 +75,6 @@ const routes = {
   ),
   "/facility/:facilityId": ({ facilityId }: any) => (
     <FacilityHome facilityId={facilityId} />
-  ),
-  "/facility/:facilityId/resource/new": ({ facilityId }: any) => (
-    <ResourceCreate facilityId={facilityId} />
   ),
   "/facility/:facilityId/triage": ({ facilityId }: any) => (
     <TriageForm facilityId={facilityId} />
@@ -109,12 +104,6 @@ const routes = {
   "/facility/:facilityId/patient/:patientId/sample/:id": ({ id }: any) => (
     <SampleDetails id={id} />
   ),
-  "/facility/:facilityId/patient/:patientId/notes/": ({ facilityId, patientId, }: any) => (
-    <PatientNotes
-      patientId={patientId}
-      facilityId={facilityId}
-    />
-  ),
   "/facility/:facilityId/patient/:patientId/files/": ({
     facilityId,
     patientId,
@@ -125,8 +114,6 @@ const routes = {
       consultationId=""
       type="PATIENT"
       hideBack={false}
-      audio={true}
-      unspecified={true}
     />
   ),
   "/facility/:facilityId/triage/:id": ({ facilityId, id }: any) => (
@@ -149,7 +136,7 @@ const routes = {
   }: any) => (
     <ConsultationForm facilityId={facilityId} patientId={patientId} id={id} />
   ),
-  "/facility/:facilityId/patient/:patientId/consultation/:id": ({
+  "/facility/:facilityId/patient/:patientId/consultation/:id/": ({
     facilityId,
     patientId,
     id,
@@ -171,8 +158,6 @@ const routes = {
       consultationId={id}
       type="CONSULTATION"
       hideBack={false}
-      audio={true}
-      unspecified={true}
     />
   ),
   "/facility/:facilityId/patient/:patientId/consultation/:id/investigation/": ({
@@ -186,23 +171,30 @@ const routes = {
       patientId={patientId}
     />
   ),
-  "/facility/:facilityId/patient/:patientId/consultation/:id/investigationSessions":
-    ({ facilityId, patientId, id }: any) => (
-      <ViewInvestigations
-        consultationId={id}
-        facilityId={facilityId}
-        patientId={patientId}
-      />
-    ),
-  "/facility/:facilityId/patient/:patientId/consultation/:id/investigation/:sessionId":
-    ({ facilityId, patientId, id, sessionId }: any) => (
-      <ShowInvestigation
-        consultationId={id}
-        facilityId={facilityId}
-        patientId={patientId}
-        sessionId={sessionId}
-      />
-    ),
+  "/facility/:facilityId/patient/:patientId/consultation/:id/investigationSessions": ({
+    facilityId,
+    patientId,
+    id,
+  }: any) => (
+    <ViewInvestigations
+      consultationId={id}
+      facilityId={facilityId}
+      patientId={patientId}
+    />
+  ),
+  "/facility/:facilityId/patient/:patientId/consultation/:id/investigation/:sessionId": ({
+    facilityId,
+    patientId,
+    id,
+    sessionId,
+  }: any) => (
+    <ShowInvestigation
+      consultationId={id}
+      facilityId={facilityId}
+      patientId={patientId}
+      sessionId={sessionId}
+    />
+  ),
   "/facility/:facilityId/patient/:patientId/consultation/:id/daily-rounds": ({
     facilityId,
     patientId,
@@ -214,24 +206,32 @@ const routes = {
       consultationId={id}
     />
   ),
-  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/daily-rounds/:id/update":
-    ({ facilityId, patientId, consultationId, id }: any) => (
-      <DailyRounds
-        facilityId={facilityId}
-        patientId={patientId}
-        consultationId={consultationId}
-        id={id}
-      />
-    ),
-  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/daily-rounds/:id":
-    ({ facilityId, patientId, consultationId, id }: any) => (
-      <DailyRoundListDetails
-        facilityId={facilityId}
-        patientId={patientId}
-        consultationId={consultationId}
-        id={id}
-      />
-    ),
+  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/daily-rounds/:id/update": ({
+    facilityId,
+    patientId,
+    consultationId,
+    id,
+  }: any) => (
+    <DailyRounds
+      facilityId={facilityId}
+      patientId={patientId}
+      consultationId={consultationId}
+      id={id}
+    />
+  ),
+  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/daily-rounds/:id": ({
+    facilityId,
+    patientId,
+    consultationId,
+    id,
+  }: any) => (
+    <DailyRoundListDetails
+      facilityId={facilityId}
+      patientId={patientId}
+      consultationId={consultationId}
+      id={id}
+    />
+  ),
   "/facility/:facilityId/patient/:patientId/shift/new": ({
     facilityId,
     patientId,
@@ -275,21 +275,9 @@ const routes = {
   "/shifting/list-view": () => <ShiftListView />,
   "/shifting/:id": ({ id }: any) => <ShiftDetails id={id} />,
   "/shifting/:id/update": ({ id }: any) => <ShiftDetailsUpdate id={id} />,
-  "/resource": () =>
-    localStorage.getItem("defaultResourceView") === "list" ? (
-      <ResourceListView />
-    ) : (
-      <ResourceBoardView />
-    ),
-
-  "/resource/board-view": () => <ResourceBoardView />,
-  "/resource/list-view": () => <ResourceListView />,
-  "/resource/:id": ({ id }: any) => <ResourceDetails id={id} />,
-  "/resource/:id/update": ({ id }: any) => <ResourceDetailsUpdate id={id} />,
   "/external_results": () => <ResultList />,
   "/external_results/upload": () => <ExternalResultUpload />,
   "/external_results/:id": ({ id }: any) => <ResultItem id={id} />,
-  "/death_report/:id": ({ id }: any) => <DeathReport id={id} />,
 };
 
 let menus = [
@@ -297,49 +285,86 @@ let menus = [
     title: "Facilities",
     link: "/facility",
     icon: "fas fa-hospital",
+    access: 'all',
   },
   {
     title: "Patients",
     link: "/patients",
     icon: "fas fa-user-injured",
+    access: 'all',
   },
   {
     title: "Sample Test",
     link: "/sample",
     icon: "fas fa-medkit",
+    access: 'admin',
   },
   {
     title: "Shifting",
     link: "/shifting",
     icon: "fas fa-ambulance",
-  },
-  {
-    title: "Resource",
-    link: "/resource",
-    icon: "fas fa-heartbeat",
+    access: 'admin',
   },
   {
     title: "External Results",
     link: "/external_results",
     icon: "fas fa-vials",
+    access: 'admin',
   },
   {
     title: "Users",
     link: "/users",
     icon: "fas fa-user-friends",
+    access: 'admin',
   },
   {
     title: "Profile",
     link: "/user/profile",
     icon: "fas fa-user-secret",
+    access: 'all',
   },
 ];
 
-const AppRouter = (props: any) => {
+let menusAll = [
+  {
+    title: "Facilities",
+    link: "/facility",
+    icon: "fas fa-hospital",
+    access: 'all',
+  },
+  {
+    title: "Patients",
+    link: "/patients",
+    icon: "fas fa-user-injured",
+    access: 'all',
+  },
+  {
+    title: "Profile",
+    link: "/user/profile",
+    icon: "fas fa-user-secret",
+    access: 'all',
+  },
+];
+
+let menusVolunteer = [
+  {
+    title: "Patients",
+    link: "/patients",
+    icon: "fas fa-user-injured",
+    access: 'all',
+  },
+  {
+    title: "Profile",
+    link: "/user/profile",
+    icon: "fas fa-user-secret",
+    access: 'all',
+  },
+];
+
+const AppRouter = () => {
   useRedirect("/", "/facility");
   const pages = useRoutes(routes);
   const path = usePath();
-  const { t } = props;
   const url = path.split("/");
   const state: any = useSelector((state) => state);
   const { currentUser } = state;
@@ -349,15 +374,24 @@ const AppRouter = (props: any) => {
     "data.last_name",
     ""
   )}`;
+  const [adminUser, setAdminUser] = useState(false);
+  const [volunteerUser, setVolunteerUser] = useState(false);
+  const [currentMenu, setCurrentMenu] = useState(menus);
+  const currentUserType = get(currentUser, "data.user_type")
+  const adminUserList = USER_TYPES.slice(5, 12)
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    let adminCheck = false
+    adminUserList.forEach((userRole) => userRole === currentUserType ? (adminCheck = !adminCheck) : null);
+    setAdminUser(adminCheck)
+    if (!adminCheck) setCurrentMenu(menusAll)
+    if (currentUserType === USER_TYPES[0]) {
+      setVolunteerUser(true);
+      setCurrentMenu(menusVolunteer);
+    }
   }, [path]);
-
-  const handleSidebarClick = (e: any, link: string) => {
-    e.preventDefault();
-    navigate(link);
-  };
-
+  // document.getElementById("pages")?.scrollTo(0,0);
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">
       {drawer && (
@@ -366,7 +400,7 @@ const AppRouter = (props: any) => {
             <div className="fixed inset-0">
               <div className="absolute inset-0 bg-gray-600 opacity-75"></div>
             </div>
-            <div className="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-green-800">
+            <div className="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-blue-800">
               <div className="absolute top-0 right-0 -mr-14 p-1">
                 <button
                   onClick={(_) => setDrawer(false)}
@@ -390,17 +424,18 @@ const AppRouter = (props: any) => {
               </div>
               <div className="flex-shrink-0 flex items-center px-4">
                 <a href="/">
-                  <img className="h-8 w-auto" src={img} alt="care logo" />
+                  <img className="h-22 w-auto" src={Sanjeevani} alt="Sanjeevani logo" />
                 </a>
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
                 <nav className="px-2">
-                  {menus.map((item) => {
+                  {currentMenu.map((item) => {
                     const parts = item.link.split("/");
                     const selectedClasses = url.includes(parts && parts[1])
-                      ? "mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-white rounded-md bg-green-900 focus:outline-none focus:bg-green-900 transition ease-in-out duration-150"
-                      : "mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-green-300 rounded-md hover:text-white hover:bg-green-700 focus:outline-none focus:bg-green-900 transition ease-in-out duration-150";
+                      ? "mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-white rounded-md bg-blue-900 focus:outline-none focus:bg-blue-900 transition ease-in-out duration-150"
+                      : "mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-blue-300 rounded-md hover:text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-900 transition ease-in-out duration-150";
                     return (
+
                       <a
                         key={item.title}
                         onClick={() => navigate(item.link, true)}
@@ -411,30 +446,33 @@ const AppRouter = (props: any) => {
                             item.icon +
                             (url.includes(parts && parts[1])
                               ? " text-white"
-                              : " text-green-400") +
-                            " mr-3 text-md group-hover:text-green-300 group-focus:text-green-300 transition ease-in-out duration-150"
+                              : " text-blue-400") +
+                            " mr-3 text-md group-hover:text-blue-300 group-focus:text-blue-300 transition ease-in-out duration-150"
                           }
                         ></i>
-                        {t(item.title)}
+                        {item.title}
                       </a>
                     );
                   })}
-                  <a
-                    key="dashboard"
-                    href="http://dashboard.coronasafe.network/"
-                    className="mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-green-300 rounded-md hover:text-white hover:bg-green-700 focus:outline-none focus:bg-green-900 transition ease-in-out duration-150"
-                  >
-                    <i className="fas fa-tachometer-alt text-green-400 mr-3 text-md group-hover:text-green-300 group-focus:text-green-300 transition ease-in-out duration-150"></i>
-                    {t("Dashboard")}
-                  </a>
+
+                  {adminUser ?
+                    (<a
+                      key="dashboard"
+                      href="https://dashboard.karnalcare.in/"
+                      className="mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-blue-300 rounded-md hover:text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-900 transition ease-in-out duration-150"
+                    >
+                      <i className="fas fa-tachometer-alt text-blue-400 mr-3 text-md group-hover:text-blue-300 group-focus:text-blue-300 transition ease-in-out duration-150"></i>
+                    Dashboard
+                    </a>) : null
+                  }
                 </nav>
               </div>
-              <div className="flex-shrink-0 flex border-t border-green-700 p-4">
+              <div className="flex-shrink-0 flex border-t border-blue-700 p-4">
                 <a href="#" className="flex-shrink-0 w-full group block">
                   <div className="flex items-center">
                     <div>
                       <div className="rounded-full h-8 w-8 flex items-center bg-white justify-center">
-                        <i className="inline-block fas fa-user text-xl text-green-700"></i>
+                        <i className="inline-block fas fa-user text-xl text-blue-700"></i>
                       </div>
                     </div>
                     <div className="ml-3">
@@ -448,9 +486,9 @@ const AppRouter = (props: any) => {
                           navigate("/login");
                           window.location.reload();
                         }}
-                        className="text-xs leading-4 font-medium text-green-300 group-hover:text-green-100 transition ease-in-out duration-150"
+                        className="text-xs leading-4 font-medium text-blue-300 group-hover:text-blue-100 transition ease-in-out duration-150"
                       >
-                        {t("sign_out")}
+                        Sign Out
                       </p>
                     </div>
                   </div>
@@ -463,24 +501,23 @@ const AppRouter = (props: any) => {
       )}
 
       <div className="hidden md:flex md:flex-shrink-0">
-        <div className="flex flex-col w-64 bg-green-800 pt-5">
+        <div style={navStyle} className="flex flex-col w-64 pt-5">
           <div className="flex items-center flex-shrink-0 px-4">
             <a href="/">
-              <img className="h-8 w-auto" src={img} alt="care logo" />
+              <img className="h-22 w-auto" src={Sanjeevani} alt="Sanjeevani logo" />
             </a>
           </div>
           <div className="mt-5 h-0 flex-1 flex flex-col overflow-y-auto">
-            <nav className="flex-1 px-2 bg-green-800">
-              {menus.map((item) => {
+            <nav style={navStyle} className="flex-1 px-2">
+              {currentMenu.map((item) => {
                 const parts = item.link.split("/");
                 const selectedClasses = url.includes(parts && parts[1])
-                  ? "mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-white rounded-md bg-green-900 focus:outline-none focus:bg-green-900 transition ease-in-out duration-150"
-                  : "mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-green-300 rounded-md hover:text-white hover:bg-green-700 focus:outline-none focus:bg-green-900 transition ease-in-out duration-150";
+                  ? "mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-white rounded-md bg-blue-900 focus:outline-none focus:bg-blue-900 transition ease-in-out duration-150"
+                  : "mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-blue-300 rounded-md hover:text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-900 transition ease-in-out duration-150";
                 return (
-                  <a
+                  <button
                     key={item.title}
-                    href={item.link}
-                    onClick={(e) => handleSidebarClick(e, item.link)}
+                    onClick={() => navigate(item.link)}
                     className={selectedClasses}
                   >
                     <i
@@ -488,32 +525,33 @@ const AppRouter = (props: any) => {
                         item.icon +
                         (url.includes(parts && parts[1])
                           ? " text-white"
-                          : " text-green-400") +
-                        " mr-3 text-lg group-hover:text-green-300 group-focus:text-green-300 transition ease-in-out duration-150"
+                          : " text-blue-400") +
+                        " mr-3 text-lg group-hover:text-blue-300 group-focus:text-blue-300 transition ease-in-out duration-150"
                       }
                     ></i>
-                    {t(item.title)}
-                  </a>
+                    {item.title}
+                  </button>
                 );
               })}
               <NotificationsList />
-              <a
-                key="dashboard"
-                href="http://dashboard.coronasafe.network/"
-                target="_blank"
-                className="mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-green-300 rounded-md hover:text-white hover:bg-green-700 focus:outline-none focus:bg-green-900 transition ease-in-out duration-150"
-              >
-                <i className="fas fa-tachometer-alt text-green-400 mr-3 text-md group-hover:text-green-300 group-focus:text-green-300 transition ease-in-out duration-150"></i>
-                {t("Dashboard")}
-              </a>
+              {adminUser ?
+                (<a
+                  key="dashboard"
+                  href="https://dashboard.karnalcare.in/"
+                  target="_blank"
+                  className="mt-2 group flex w-full items-center px-2 py-2 text-base leading-5 font-medium text-blue-300 rounded-md hover:text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-900 transition ease-in-out duration-150"
+                >
+                  <i className="fas fa-tachometer-alt text-blue-400 mr-3 text-md group-hover:text-blue-300 group-focus:text-blue-300 transition ease-in-out duration-150"></i>
+                Dashboard
+                </a>) : null}
             </nav>
           </div>
-          <div className="flex-shrink-0 flex border-t border-green-700 p-4">
+          <div className="flex-shrink-0 flex border-t border-blue-700 p-4">
             <a href="#" className="flex-shrink-0 w-full group block">
               <div className="flex items-center">
                 <div>
                   <div className="rounded-full h-8 w-8 flex items-center bg-white justify-center">
-                    <i className="inline-block fas fa-user text-xl text-green-700"></i>
+                    <i className="inline-block fas fa-user text-xl text-blue-700"></i>
                   </div>
                 </div>
                 <div className="ml-3">
@@ -527,9 +565,9 @@ const AppRouter = (props: any) => {
                       navigate("/login");
                       window.location.reload();
                     }}
-                    className="text-xs leading-4 font-medium text-green-300 group-hover:text-green-100 transition ease-in-out duration-150"
+                    className="text-xs leading-4 font-medium text-blue-300 group-hover:text-blue-100 transition ease-in-out duration-150"
                   >
-                    {t("sign_out")}
+                    Sign Out
                   </p>
                 </div>
               </div>
@@ -562,7 +600,7 @@ const AppRouter = (props: any) => {
             href="/"
             className="md:hidden flex h-full w-full items-center px-4"
           >
-            <img className="h-6 w-auto" src={logoBlack} alt="care logo" />
+            <img className="h-6 w-auto" src={Sanjeevani} alt="Sanjeevani logo" />
           </a>
         </div>
 
@@ -576,4 +614,5 @@ const AppRouter = (props: any) => {
     </div>
   );
 };
-export default withTranslation()(AppRouter);
+
+export default AppRouter;

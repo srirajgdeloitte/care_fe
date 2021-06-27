@@ -15,23 +15,21 @@ import {
   IconButton,
 } from "@material-ui/core";
 
-export const ExternalResultLocalbodySelector = (props: any) => {
-  const [localBody, setLocalBody] = useState(0);
 
-  const selectedLocalBody = props.lsgs?.find(
-    (item: any) => item.id == localBody
-  );
+export const ExternalResultLocalbodySelector = (props: any) => {
+  const [localBody, setLocalBody] = useState(0)
+
+  const selectedLocalBody = props.lsgs?.find((item: any) => item.id == localBody);
 
   const wards = selectedLocalBody?.wards;
   return (
     <div className="pb-2">
       <div className="space-y-1">
-        <label
-          id="listbox-label"
-          className="block text-sm leading-5 font-medium text-gray-700"
-        >
+        <label id="listbox-label" className="block text-sm leading-5 font-medium text-gray-700">
           Assigned to
         </label>
+
+
 
         <div className="md:col-span-2">
           <InputLabel id="local_body-label">Localbody*</InputLabel>
@@ -43,14 +41,15 @@ export const ExternalResultLocalbodySelector = (props: any) => {
             options={props.lsgs}
             optionValue="name"
             onChange={(e) => {
-              setLocalBody(e.target.value);
+              setLocalBody(e.target.value)
             }}
           />
+
         </div>
         <div className="md:col-span-2">
           <InputLabel id="ward-label">Ward*</InputLabel>
-          {wards && (
-            <SelectField
+          {
+            wards && <SelectField
               name="ward"
               variant="outlined"
               margin="dense"
@@ -59,11 +58,16 @@ export const ExternalResultLocalbodySelector = (props: any) => {
                 .map((e: any) => {
                   return { id: e.id, name: e.number + ": " + e.name };
                 })}
+
               optionValue="name"
             />
-          )}
+          }
+
+
         </div>
+
+
+
       </div>
-    </div>
-  );
+    </div >)
 };
